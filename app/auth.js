@@ -7,7 +7,7 @@ export default class Auth {
   // Please use your own credentials here
   auth0 = new auth0.WebAuth({
     domain: 'divyanshu.auth0.com',
-    clientID: 'gnXmrO24CGNBuYtfGgblgOHM2GESYQ5N',
+    clientID: 'IcVGTI2AUvc49lnE0ltVemretrsI3y3P',
     redirectUri: process.env.NODE_ENV === 'development' ? 'http://localhost:8001/callback' : 'https://appbaseio-apps.github.io/todomvc-authorization-client/callback',
     audience: 'https://divyanshu.xyz',
     responseType: 'token id_token',

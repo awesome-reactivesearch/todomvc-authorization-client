@@ -91,6 +91,7 @@ class TodoList extends Component {
         return (
             <div>
                 {
+                    this.props.auth.isAuthenticated() &&
                     this.props.auth.userHasScopes(['read:todos']) ?
                         <div>
                             {

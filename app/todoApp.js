@@ -89,8 +89,9 @@ class TodoApp extends Component {
   }
 
   render () {
-    let todos = this.props.model.todos;
+    let todos = this.props.model.getValidTodos();
 
+    // check active count of only the todos belonging to current user
     let activeTodoCount = todos.reduce((accum, todo) => {
       return todo.completed ? accum : accum + 1
     }, 0);

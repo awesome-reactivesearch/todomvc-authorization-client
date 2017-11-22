@@ -81,6 +81,22 @@ class TodoModel {
     this.onChanges.forEach((cb) => { cb() })
   }
 
+  // returns all todos created by current user
+  getValidTodos () {
+    if (!auth.getUserEmail()) {
+      return this.todos;
+    }
+    return this.todos.filter(todo => todo.createdBy === auth.getUserEmail());
+  }
+
+  // returns remaining todos
+  getRemainingTodos () {
+    if (!auth.getUserEmail()) {
+      return this.todos;
+    }
+    return this.todos.filter(todo => todo.createdBy !== auth.getUserEmail());
+  }
+
   addTodo (title) {
     const id = Utils.uuid();
     const now = Date.now();
@@ -112,13 +128,17 @@ class TodoModel {
   }
 
   toggleAll (checked) {
-    this.todos = this.todos.map((todo) => ({
+    console.log(checked)
+    this.todos = [
+      ...this.getValidTodos().map((todo) => ({
       ...todo,
       completed: checked
-    }));
+      })),
+      ...this.getRemainingTodos()
+    ];
     this.inform();
 
-    this.todos.forEach((todo) => {
+    this.getValidTodos().forEach((todo) => {
       const payload = {
         id: todo.id,
         completed: todo.completed
@@ -204,12 +224,13 @@ class TodoModel {
   }
 
   clearCompleted () {
-    const validTodos = this.todos.filter(todo => todo.createdBy === auth.getUserEmail());
-    const restTodos = this.todos.filter(todo => todo.createdBy === auth.getUserEmail());
-    let completed = this.todos.filter((todo) => todo.completed);
+    let completed = this.getValidTodos().filter((todo) => todo.completed);
 
     // optimistic logic
-    this.todos = this.todos.filter((todo) => !todo.completed);
+    this.todos = [
+      ...this.getValidTodos().filter((todo) => !todo.completed),
+      ...this.getRemainingTodos()
+    ];
     this.inform();
 
     // broadcast all changes

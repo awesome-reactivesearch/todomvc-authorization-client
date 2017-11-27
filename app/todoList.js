@@ -12,6 +12,7 @@ class TodoList extends Component {
         super(props);
         this.state = {
             nowShowing: ALL_TODOS,
+            showWarning: false
         }
     }
 
@@ -21,14 +22,32 @@ class TodoList extends Component {
         });
     }
 
+    showWarning = () => {
+        if (!this.state.showWarning) {
+            this.setState({
+                showWarning: true
+            })
+        }
+    }
+
+    hideWarning = () => {
+        if (this.state.showWarning) {
+            this.setState({
+                showWarning: false
+            });
+        }
+    }
+
     toggle (todoToToggle) {
         if (
             !this.props.auth.isAuthenticated() ||
             !this.props.auth.userHasScopes(['write:todos']) ||
             this.props.auth.getUserEmail() !== todoToToggle.createdBy
         ) {
+            this.showWarning();
             return;
         }
+        this.hideWarning();
         this.props.model.toggle(todoToToggle)
     }
 
@@ -38,6 +57,7 @@ class TodoList extends Component {
             !this.props.auth.userHasScopes(['write:todos']) ||
             this.props.auth.getUserEmail() !== todo.createdBy
         ) {
+            this.showWarning();
             return;
         }
         this.props.model.destroy(todo)
@@ -49,8 +69,10 @@ class TodoList extends Component {
             !this.props.auth.userHasScopes(['write:todos']) ||
             this.props.auth.getUserEmail() !== todoToSave.createdBy
         ) {
+            this.showWarning();
             return;
         }
+        this.hideWarning();
         this.props.model.save(todoToSave, text);
     }
     
@@ -66,7 +88,7 @@ class TodoList extends Component {
 
     render() {
         let footer,
-        todos = this.props.model.todos;
+        todos = this.props.model.todos.sort((a, b) => b.createdAt - a.createdAt);   // order latest first
     
         let activeTodoCount = todos.reduce((accum, todo) => {
           return todo.completed ? accum : accum + 1
@@ -90,26 +112,34 @@ class TodoList extends Component {
         }
         return (
             <div>
+                <div>
+                    {
+                        todos.map((todo) => {
+                            return (
+                                <TodoItem
+                                    key={todo.id}
+                                    todo={{...todo}}
+                                    onToggle={this.toggle.bind(this, todo)}
+                                    onDestroy={this.destroy.bind(this, todo)}
+                                    onSave={this.save.bind(this, todo)}
+                                />
+                            );
+                        })
+                    }
+                    {footer}
+                </div>
                 {
-                    this.props.auth.isAuthenticated() &&
-                    this.props.auth.userHasScopes(['read:todos']) ?
-                        <div>
-                            {
-                                todos.map((todo) => {
-                                    return (
-                                        <TodoItem
-                                            key={todo.id}
-                                            todo={{...todo}}
-                                            onToggle={this.toggle.bind(this, todo)}
-                                            onDestroy={this.destroy.bind(this, todo)}
-                                            onSave={this.save.bind(this, todo)}
-                                        />
-                                    );
-                                })
-                            }
-                            {footer}
-                        </div> :
-                        <div className="auth-text unauth-msg">Unauthorized to read data without <code className="alert">read:todos</code> scope</div>
+                    (!this.props.auth.isAuthenticated() || 
+                    !this.props.auth.userHasScopes(['write:todos'])) &&
+                    <div className="auth-text unauth-msg">
+                        <code className="alert">write:todos</code> scope is required to modify todos
+                    </div>
+                }
+                {
+                    this.state.showWarning &&
+                    <div className="auth-text unauth-msg">
+                        You may only modify your own todos
+                    </div>
                 }
             </div>
         );

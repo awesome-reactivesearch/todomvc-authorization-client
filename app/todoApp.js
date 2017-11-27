@@ -117,7 +117,10 @@ class TodoApp extends Component {
             }
           />
           <header className="header">
-            <h1>todos</h1>
+            <h1 className="main-title">Todos with Authorization</h1>
+            <p className="auth-text">
+              <a className="blog-link auth-link" href="https://medium.appbase.io" target="_blank">Read how we built it!</a>
+            </p>
             {
               auth.isAuthenticated() ?
                 <p className="auth-text"><a className="auth-link" onClick={auth.logout}>logout</a></p> :

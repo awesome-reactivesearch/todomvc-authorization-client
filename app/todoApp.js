@@ -119,7 +119,7 @@ class TodoApp extends Component {
           <header className="header">
             <h1 className="main-title">Todos with Authorization</h1>
             <p className="auth-text">
-              <a className="blog-link auth-link" href="https://medium.appbase.io" target="_blank">Read how we built it!</a>
+              <a className="blog-link auth-link" href="https://medium.appbase.io/securing-a-react-web-app-with-authorization-rules-2e43bf5592ca" target="_blank">Read how we built it!</a>
             </p>
             {
               auth.isAuthenticated() ?
